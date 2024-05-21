@@ -14,24 +14,24 @@ class ProductSchema(ModelSchema):
 def get_products(request):
     return products.objects.all()
 
-# class ProductCreateSchema(ModelSchema):
-#     class Meta:
-#         model = products
-#         fields = ['search_image','styleid','brands_filter_facet','price','product_additional_info']
-# @api.post('/insertproduct', response=list[ProductSchema])
+class ProductCreateSchema(ModelSchema):
+    class Meta:
+        model = products
+        fields = ['search_image','styleid','brands_filter_facet','price','product_additional_info']
+@api.post('/insertproduct', response=list[ProductSchema])
 
-# def insert_products(request, payload: ProductCreateSchema):
-#     new_product = products.objects.create(
-#         search_image=payload.search_image,
-#         styleid=payload.styleid,
-#         brands_filter_facet=payload.brands_filter_facet,
-#         price=payload.price,
-#         product_additional_info=payload.product_additional_info
-#     )
+def insert_products(request, payload: ProductCreateSchema):
+    new_product = products.objects.create(
+        search_image=payload.search_image,
+        styleid=payload.styleid,
+        brands_filter_facet=payload.brands_filter_facet,
+        price=payload.price,
+        product_additional_info=payload.product_additional_info
+    )
 
-#     # Lưu đối tượng sản phẩm vào cơ sở dữ liệu
-#     new_product.save()
-#     return new_product
+    # Lưu đối tượng sản phẩm vào cơ sở dữ liệu
+    new_product.save()
+    return new_product
 
 @api.post("/products/bulk")
 def create_products(request, product_data: list[dict]):
