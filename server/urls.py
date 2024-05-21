@@ -18,7 +18,7 @@ class ProductCreateSchema(ModelSchema):
     class Meta:
         model = products
         fields = ['search_image','styleid','brands_filter_facet','price','product_additional_info']
-@api.post('/insertproduct', response=list[ProductSchema])
+@api.post('/insertproduct', response=ProductSchema)
 
 def insert_products(request, payload: ProductCreateSchema):
     new_product = products.objects.create(
@@ -49,6 +49,20 @@ def create_products(request, product_data: list[dict]):
     products.objects.bulk_create(product_instances)
     return {"message": "Products created successfully"}
 
+
+class AccountSchema(ModelSchema):
+    class Meta:
+        model = accounts
+        fields = ['account', 'password']
+
+@api.post("/insertaccount", response=AccountSchema)
+def insertAccountSchema(request, payload : AccountSchema):
+    new_account = accounts.objects.create(
+        account=payload.account,
+        password=payload.password,
+    )
+    new_account.save()
+    return new_account
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls)

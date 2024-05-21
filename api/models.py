@@ -7,3 +7,7 @@ class products(models.Model):
     brands_filter_facet = models.CharField(max_length=30)
     price = models.IntegerField(default=0)
     product_additional_info = models.CharField(max_length=100)
+
+class accounts(models.Model):
+    account = models.CharField(max_length=20)
+    password = models.CharField(max_length=20)
