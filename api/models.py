@@ -2,12 +2,15 @@ from django.db import models
 
 # Create your models here.
 class products(models.Model):
-    search_image = models.TextField(default='')
-    styleid = models.IntegerField(default=0)
-    brands_filter_facet = models.CharField(max_length=30)
-    price = models.IntegerField(default=0)
-    product_additional_info = models.CharField(max_length=100)
+    image = models.TextField(default='')
+    productName = models.CharField(max_length=50)
+    price = models.FloatField(default=0)
+    brand = models.CharField(max_length=50)
+    yearOfManufacture = models.IntegerField(default=0)
+    description = models.TextField(default='')
 
 class accounts(models.Model):
-    account = models.CharField(max_length=20)
+    firstName = models.CharField(max_length=20, default="")
+    lastName = models.CharField(max_length=20, default="")
+    email = models.EmailField(unique=True, default="")
     password = models.CharField(max_length=20)

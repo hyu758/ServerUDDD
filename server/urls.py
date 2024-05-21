@@ -17,32 +17,20 @@ def get_products(request):
 class ProductCreateSchema(ModelSchema):
     class Meta:
         model = products
-        fields = ['search_image','styleid','brands_filter_facet','price','product_additional_info']
-@api.post('/insertproduct', response=ProductSchema)
+        fields = ['image','productName','price','brand','yearOfManufacture', 'description']
 
-def insert_products(request, payload: ProductCreateSchema):
-    new_product = products.objects.create(
-        search_image=payload.search_image,
-        styleid=payload.styleid,
-        brands_filter_facet=payload.brands_filter_facet,
-        price=payload.price,
-        product_additional_info=payload.product_additional_info
-    )
-
-    # Lưu đối tượng sản phẩm vào cơ sở dữ liệu
-    new_product.save()
-    return new_product
 
 @api.post("/products/bulk")
 def create_products(request, product_data: list[dict]):
     product_instances = []
     for data in product_data:
         product = products(
-            search_image=data.get("search_image", ""),
-            styleid=data.get("styleid", 0),
-            brands_filter_facet=data.get("brands_filter_facet", ""),
+            image=data.get("image", ""),
+            productName=data.get("productName", ""),
             price=data.get("price", 0),
-            product_additional_info=data.get("product_additional_info", ""),
+            brand=data.get("model", ""),
+            yearOfManufacture=data.get("yearOfManufacture", 0),
+            description = data.get("specifications", "")
         )
         product_instances.append(product)
 
@@ -53,16 +41,28 @@ def create_products(request, product_data: list[dict]):
 class AccountSchema(ModelSchema):
     class Meta:
         model = accounts
-        fields = ['account', 'password']
+        fields = ['firstName', 'lastName','email', 'password']
 
 @api.post("/insertaccount", response=AccountSchema)
 def insertAccountSchema(request, payload : AccountSchema):
     new_account = accounts.objects.create(
-        account=payload.account,
+        firstName = payload.firstName,
+        lastName = payload.lastName,
+        email=payload.email,
         password=payload.password,
     )
     new_account.save()
     return new_account
+
+class getAccountSchema(ModelSchema):
+    class Meta:
+        model = accounts
+        fields = '__all__'
+
+@api.get("/getAccount", response=list[getAccountSchema])
+def getAccount(request):
+    return accounts.objects.all()
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls)
