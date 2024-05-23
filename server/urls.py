@@ -54,6 +54,7 @@ def insertAccountSchema(request, payload : AccountSchema):
     new_account.save()
     return new_account
 
+
 class getAccountSchema(ModelSchema):
     class Meta:
         model = accounts
@@ -62,6 +63,21 @@ class getAccountSchema(ModelSchema):
 @api.get("/getAccount", response=list[getAccountSchema])
 def getAccount(request):
     return accounts.objects.all()
+
+
+class getAccountByEmailSchema(ModelSchema):
+    class Meta:
+        model = accounts
+        fields = ['firstName', 'lastName','email']
+
+@api.get("/getAccountByEmail/{email}", response=getAccountByEmailSchema)
+def get_account_by_email(request, email: str):
+    try:
+        account = accounts.objects.get(email=email)
+        return account
+    except accounts.DoesNotExist:
+        return {"error": "Account not found"}
+    
 
 urlpatterns = [
     path('admin/', admin.site.urls),

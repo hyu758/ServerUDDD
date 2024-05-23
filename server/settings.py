@@ -140,3 +140,8 @@ DATABASES = {
         conn_max_age=600
     )
 }
+
+JAZZMIN_SETTINGS = {
+    "copyright": "Hyu758",
+    "search_model": ["api.accounts"],
+}
