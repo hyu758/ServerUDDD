@@ -106,7 +106,7 @@ class getProductByID(ModelSchema):
     class Meta:
         model = products
         fields = '__all__'
-@api.get("/getProductByEmail/{productID}", response=getProductByID)
+@api.get("/getProductByID/{productID}", response=getProductByID)
 def getProductByID(request, productID : int):
     try:
         product = products.objects.get(pk = productID)
