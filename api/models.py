@@ -14,3 +14,8 @@ class accounts(models.Model):
     lastName = models.CharField(max_length=20, default="")
     email = models.EmailField(unique=True, default="")
     password = models.CharField(max_length=20)
+
+class shopping_cart(models.Model):
+    productID = models.IntegerField(default=0)
+    email = models.EmailField()  # Sử dụng email thay vì account_id
+    token = models.TextField(default="")

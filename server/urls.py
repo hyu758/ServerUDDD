@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from ninja import NinjaAPI, ModelSchema
+from api import views
 from api.models import *
 
 api = NinjaAPI()
@@ -77,6 +78,29 @@ def get_account_by_email(request, email: str):
         return account
     except accounts.DoesNotExist:
         return {"error": "Account not found"}
+    
+
+class ShoppingCartSchema(ModelSchema):
+    class Meta:
+        model = shopping_cart
+        fields = ['productID', 'email', 'token']
+
+@api.post("/add_to_shopping_cart")
+def add_to_shopping_cart(request, payload: ShoppingCartSchema):
+    try:
+        # Tạo một đối tượng shopping_cart mới từ dữ liệu được cung cấp
+        new_cart_item = shopping_cart.objects.create(
+            productID=payload.productID,
+            email=payload.email,
+            token=payload.token,
+        )
+        # Lưu đối tượng vào cơ sở dữ liệu
+        new_cart_item.save()
+        # Trả về thông báo thành công
+        return {"message": "Added to shopping cart successfully"}
+    except Exception as e:
+        # Trả về một thông báo lỗi nếu có lỗi xảy ra
+        return {"error": str(e)}
     
 
 urlpatterns = [
