@@ -5,6 +5,7 @@ from ninja import NinjaAPI, ModelSchema
 from api import views
 from api.models import *
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
 api = NinjaAPI()
 
@@ -153,6 +154,24 @@ def getProductByEmail(request, email: str):
         return JsonResponse(product_list, safe=False)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@api.delete("/removeProductByID/{product_id}")
+def remove_product(request, product_id: int):
+    try:
+        # Tìm sản phẩm cần xoá từ cơ sở dữ liệu
+        cart_item = shopping_cart.objects.filter(productID=product_id).first()
+
+        # Xoá mục trong giỏ hàng
+        if cart_item:
+            # Nếu tìm thấy mục trong giỏ hàng, thì xoá nó
+            cart_item.delete()
+            return {"message": "Cart item removed successfully"}
+        else:
+            # Nếu không tìm thấy mục trong giỏ hàng, trả về thông báo lỗi
+            return {"error": "Cart item not found with productID {}".format(product_id)}
+    except Exception as e:
+        return {"error": str(e)}
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
