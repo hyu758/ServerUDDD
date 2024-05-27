@@ -4,6 +4,7 @@ from django.urls import path, include
 from ninja import NinjaAPI, ModelSchema
 from api import views
 from api.models import *
+from django.http import JsonResponse
 
 api = NinjaAPI()
 
@@ -114,6 +115,22 @@ def getProductByID(request, productID : int):
     except products.DoesNotExist:
         return {"error": "Product not found"}
 
+
+class getProductByEmail(ModelSchema):
+    class Meta:
+        model = products
+        fields = '__all__'
+@api.get("/getProductByEmail/{email}")
+def getProductByEmail(request, email: str):
+    try:
+        # Lấy tất cả ID
+        product_ids = shopping_cart.objects.filter(email=email).values_list('productID', flat=True)
+        # Lấy tất cả các sản phẩm tương ứng từ bảng products
+        product_list = list(products.objects.filter(id__in=product_ids).values())
+        # Trả về danh sách sản phẩm dưới dạng JSON
+        return JsonResponse(product_list, safe=False)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
