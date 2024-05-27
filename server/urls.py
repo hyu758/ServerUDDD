@@ -5,7 +5,6 @@ from ninja import NinjaAPI, ModelSchema
 from api import views
 from api.models import *
 from django.http import JsonResponse
-from django.core.exceptions import MultipleObjectsReturned
 from django.shortcuts import get_object_or_404
 
 api = NinjaAPI()
@@ -86,26 +85,19 @@ def get_account_by_email(request, email: str):
 class ShoppingCartSchema(ModelSchema):
     class Meta:
         model = shopping_cart
-        fields = ['productID', 'email', 'quantity', 'token']
+        fields = ['productID', 'email', 'token']
 
 @api.post("/add_to_shopping_cart")
 def add_to_shopping_cart(request, payload: ShoppingCartSchema):
     try:
-        # Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
-        existing_cart_item = shopping_cart.objects.filter(productID=payload.productID, email=payload.email).first()
-        if existing_cart_item:
-            # Nếu sản phẩm đã tồn tại, cập nhật số lượng
-            existing_cart_item.quantity += payload.quantity
-            existing_cart_item.save()
-        else:
-            # Nếu sản phẩm chưa tồn tại, tạo một mục mới
-            new_cart_item = shopping_cart.objects.create(
-                productID=payload.productID,
-                email=payload.email,
-                quantity=payload.quantity,
-                token=payload.token,
-            )
-            new_cart_item.save()
+        # Tạo một đối tượng shopping_cart mới từ dữ liệu được cung cấp
+        new_cart_item = shopping_cart.objects.create(
+            productID=payload.productID,
+            email=payload.email,
+            token=payload.token,
+        )
+        # Lưu đối tượng vào cơ sở dữ liệu
+        new_cart_item.save()
         # Trả về thông báo thành công
         return {"message": "Added to shopping cart successfully"}
     except Exception as e:
@@ -116,50 +108,36 @@ class getProductByID(ModelSchema):
     class Meta:
         model = products
         fields = '__all__'
-@api.get("/getProductByID/{productID}", response=getProductByID)
-def getProductByID(request, productID : int):
-    try:
-        product = products.objects.get(pk = productID)
-        return product
-    except products.DoesNotExist:
-        return {"error": "Product not found"}
-
-
-class getProductByEmail(ModelSchema):
-    class Meta:
-        model = products
-        fields = '__all__'
 @api.get("/getProductByEmail/{email}")
 def getProductByEmail(request, email: str):
     try:
-        # Lấy tất cả ID
-        product_ids = shopping_cart.objects.filter(email=email).values_list('productID', flat=True).distinct()
-        # Lấy tất cả các sản phẩm tương ứng từ bảng products
+        product_ids = shopping_cart.objects.filter(email=email).values_list('productID', flat=True)
+        # Khởi tạo danh sách để lưu các thông tin sản phẩm
         product_list = []
+        quantityOfPr = {}
         for id in product_ids:
-            print(id)
-            try:
-                product = products.objects.get(id=id)
-                # Lấy bản ghi đầu tiên phù hợp với productID và email
-                cart_item = shopping_cart.objects.filter(productID=id, email=email).first()
-                if cart_item:
-                    product_info = {
-                        "id": product.id,
-                        "productName": product.productName,
-                        "price": product.price,
-                        "image": product.image,
-                        "brand": product.brand,
-                        "yearOfManufacture": product.yearOfManufacture,
-                        "description": product.description,
-                        "quantity": cart_item.quantity  # Số lượng sản phẩm trong giỏ hàng
-                    }
-                    product_list.append(product_info)
-            except products.DoesNotExist:
-                continue  # Nếu sản phẩm không tồn tại, bỏ qua và tiếp tục với sản phẩm tiếp theo
-            except MultipleObjectsReturned:
-                continue  # Nếu có nhiều sản phẩm, bỏ qua và tiếp tục với sản phẩm tiếp theo
+            if (id not in quantityOfPr):
+                quantityOfPr[id] = 1
+            else:
+                quantityOfPr[id] += 1
+        # Lặp qua từng sản phẩm trong giỏ hàng để lấy thông tin chi tiết của sản phẩm từ bảng Product
+        for id in quantityOfPr:
+            product = products.objects.get(id=id)
 
-        # Trả về danh sách sản phẩm dưới dạng JSON
+            # Tạo một từ điển đại diện cho thông tin sản phẩm và số lượng trong giỏ hàng
+            product_info = {
+                "id": product.id,
+                "productName": product.productName,
+                "price": product.price,
+                "image": product.image,
+                "brand": product.brand,
+                "yearOfManufacture": product.yearOfManufacture,
+                "description": product.description,
+                "quantity": quantityOfPr[id]  # Số lượng sản phẩm trong giỏ hàng
+            }
+
+            # Thêm thông tin sản phẩm vào danh sách sản phẩm
+            product_list.append(product_info)
         return JsonResponse(product_list, safe=False)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)

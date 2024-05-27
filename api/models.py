@@ -18,5 +18,4 @@ class accounts(models.Model):
 class shopping_cart(models.Model):
     productID = models.IntegerField(default=0)
     email = models.EmailField()  # Sử dụng email thay vì account_id
-    quantity = models.IntegerField(default=1)
     token = models.TextField(default="")
