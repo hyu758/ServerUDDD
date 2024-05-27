@@ -102,6 +102,17 @@ def add_to_shopping_cart(request, payload: ShoppingCartSchema):
         # Trả về một thông báo lỗi nếu có lỗi xảy ra
         return {"error": str(e)}
     
+class getProductByID(ModelSchema):
+    class Meta:
+        model = products
+        fields = '__all__'
+@api.get("/getProductByEmail/{productID}", response=getProductByID)
+def getProductByID(request, productID : int):
+    try:
+        product = products.objects.get(pk = productID)
+        return product
+    except products.DoesNotExist:
+        return {"error": "Product not found"}
 
 urlpatterns = [
     path('admin/', admin.site.urls),
