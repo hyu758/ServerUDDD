@@ -5,6 +5,7 @@ from ninja import NinjaAPI, ModelSchema
 from api import views
 from api.models import *
 from django.http import JsonResponse
+from django.core.exceptions import MultipleObjectsReturned
 from django.shortcuts import get_object_or_404
 
 api = NinjaAPI()
@@ -126,23 +127,31 @@ class getProductByEmail(ModelSchema):
 def getProductByEmail(request, email: str):
     try:
         # Lấy tất cả ID
-        product_ids = shopping_cart.objects.filter(email=email).values_list('productID', flat=True)
+        product_ids = shopping_cart.objects.filter(email=email).values_list('productID', flat=True).distinct()
         # Lấy tất cả các sản phẩm tương ứng từ bảng products
         product_list = []
         for id in product_ids:
             print(id)
-            product = products.objects.get(id=id)
-            product_info = {
-                "id": product.id,
-                "productName": product.productName,
-                "price": product.price,
-                "image": product.image,
-                "brand": product.brand,
-                "yearOfManufacture": product.yearOfManufacture,
-                "description": product.description,
-                "quantity": (shopping_cart.objects.get(productID = id)).quantity  # Số lượng sản phẩm trong giỏ hàng
-            }
-            product_list.append(product_info)
+            try:
+                product = products.objects.get(id=id)
+                # Lấy bản ghi đầu tiên phù hợp với productID và email
+                cart_item = shopping_cart.objects.filter(productID=id, email=email).first()
+                if cart_item:
+                    product_info = {
+                        "id": product.id,
+                        "productName": product.productName,
+                        "price": product.price,
+                        "image": product.image,
+                        "brand": product.brand,
+                        "yearOfManufacture": product.yearOfManufacture,
+                        "description": product.description,
+                        "quantity": cart_item.quantity  # Số lượng sản phẩm trong giỏ hàng
+                    }
+                    product_list.append(product_info)
+            except products.DoesNotExist:
+                continue  # Nếu sản phẩm không tồn tại, bỏ qua và tiếp tục với sản phẩm tiếp theo
+            except MultipleObjectsReturned:
+                continue  # Nếu có nhiều sản phẩm, bỏ qua và tiếp tục với sản phẩm tiếp theo
 
         # Trả về danh sách sản phẩm dưới dạng JSON
         return JsonResponse(product_list, safe=False)
