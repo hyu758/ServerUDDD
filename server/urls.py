@@ -91,15 +91,21 @@ class ShoppingCartSchema(ModelSchema):
 @api.post("/add_to_shopping_cart")
 def add_to_shopping_cart(request, payload: ShoppingCartSchema):
     try:
-        # Tạo một đối tượng shopping_cart mới từ dữ liệu được cung cấp
-        new_cart_item = shopping_cart.objects.create(
-            productID=payload.productID,
-            email=payload.email,
-            quantity = payload.quantity,
-            token=payload.token,
-        )
-        # Lưu đối tượng vào cơ sở dữ liệu
-        new_cart_item.save()
+        # Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
+        existing_cart_item = shopping_cart.objects.filter(productID=payload.productID, email=payload.email).first()
+        if existing_cart_item:
+            # Nếu sản phẩm đã tồn tại, cập nhật số lượng
+            existing_cart_item.quantity += payload.quantity
+            existing_cart_item.save()
+        else:
+            # Nếu sản phẩm chưa tồn tại, tạo một mục mới
+            new_cart_item = shopping_cart.objects.create(
+                productID=payload.productID,
+                email=payload.email,
+                quantity=payload.quantity,
+                token=payload.token,
+            )
+            new_cart_item.save()
         # Trả về thông báo thành công
         return {"message": "Added to shopping cart successfully"}
     except Exception as e:
