@@ -123,11 +123,33 @@ class getProductByEmail(ModelSchema):
 @api.get("/getProductByEmail/{email}")
 def getProductByEmail(request, email: str):
     try:
-        # Lấy tất cả ID
         product_ids = shopping_cart.objects.filter(email=email).values_list('productID', flat=True)
-        # Lấy tất cả các sản phẩm tương ứng từ bảng products
-        product_list = list(products.objects.filter(id__in=product_ids).values())
-        # Trả về danh sách sản phẩm dưới dạng JSON
+        # Khởi tạo danh sách để lưu các thông tin sản phẩm
+        product_list = []
+        quantityOfPr = {}
+        for id in product_ids:
+            if (id not in quantityOfPr):
+                quantityOfPr[id] = 1
+            else:
+                quantityOfPr[id] += 1
+        # Lặp qua từng sản phẩm trong giỏ hàng để lấy thông tin chi tiết của sản phẩm từ bảng Product
+        for id in quantityOfPr:
+            product = products.objects.get(id=id)
+
+            # Tạo một từ điển đại diện cho thông tin sản phẩm và số lượng trong giỏ hàng
+            product_info = {
+                "id": product.id,
+                "productName": product.productName,
+                "price": product.price,
+                "image": product.image,
+                "brand": product.brand,
+                "yearOfManufacture": product.yearOfManufacture,
+                "description": product.description,
+                "quantity": quantityOfPr[id]  # Số lượng sản phẩm trong giỏ hàng
+            }
+
+            # Thêm thông tin sản phẩm vào danh sách sản phẩm
+            product_list.append(product_info)
         return JsonResponse(product_list, safe=False)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
