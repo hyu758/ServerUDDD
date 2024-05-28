@@ -187,7 +187,7 @@ class updateOrderToken(ModelSchema):
         model = order
         fields = ['token']
 
-@api.post("/updateOrderByID/{orderID}")
+@api.put("/updateOrderByID/{orderID}")
 def updateOrderByID(request, orderID, payload: updateOrderToken):
     try:
         order_to_update = get_object_or_404(order, id = orderID)
