@@ -19,3 +19,10 @@ class shopping_cart(models.Model):
     productID = models.IntegerField(default=0)
     email = models.EmailField()  # Sử dụng email thay vì account_id
     token = models.TextField(default="")
+
+class order(models.Model):
+    email = models.EmailField()
+    fullName = models.CharField(max_length=30, default="")
+    address = models.TextField(default="")
+    phoneNumber = models.CharField(max_length=20, default="")
+    token = models.TextField(default="")

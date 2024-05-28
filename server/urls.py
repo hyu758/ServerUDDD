@@ -159,6 +159,45 @@ def remove_product(request, product_id: int):
             return {"error": "Cart item not found with productID {}".format(product_id)}
     except Exception as e:
         return {"error": str(e)}
+    
+
+class orderSchema(ModelSchema):
+    class Meta:
+        model = order
+        fields = ['email', 'fullName', 'address', 'phoneNumber', 'token']
+
+@api.post("/insertOrder")
+def insertOrder(request, payload : orderSchema):
+    try:
+        new_order = order.objects.create(
+            email = payload.email,
+            fullName = payload.fullName,
+            address = payload.address,
+            phoneNumber = payload.phoneNumber,
+            token = payload.token
+        )
+        new_order.save()
+        return {"message": "Added to order successfully"}
+    except Exception as e:
+        return {"error": e}
+
+
+class updateOrderToken(ModelSchema):
+    class Meta:
+        model = order
+        fields = ['token']
+
+@api.post("/updateOrderByID/{orderID}")
+def updateOrderByID(request, orderID, payload: updateOrderToken):
+    try:
+        order_to_update = get_object_or_404(order, id = orderID)
+        order_to_update.token = payload.token
+        order_to_update.save()
+        return {"message": "Order token updated successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
