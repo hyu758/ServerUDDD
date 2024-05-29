@@ -145,3 +145,9 @@ JAZZMIN_SETTINGS = {
     "copyright": "Hyu758",
     "search_model": ["api.accounts"],
 }
+
+VNPAY_RETURN_URL = 'http://localhost:8000/api/payment'  
+VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'  
+VNPAY_API_URL = 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction'
+VNPAY_TMN_CODE = 'NWZQCAT6' 
+VNPAY_HASH_SECRET_KEY = '7NEDTEY7WGNYIRFUEIW46LVV6YHKMT8Y'

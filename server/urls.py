@@ -6,6 +6,9 @@ from api import views
 from api.models import *
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from datetime import datetime
+from .forms import *
+from .vnpay import *
 
 api = NinjaAPI()
 
@@ -218,10 +221,53 @@ class getOrderSchema(ModelSchema):
 def getOrderByEmail(request, email : str):
     try:
         orders = order.objects.filter(email = email)
-        print(orders)
         return list(orders)
     except Exception as e:
-        print("alo")
+        return {"error": str(e)}
+
+
+
+@api.get("/paymentSuccess/{orderLabel}")
+def getPayment(request, orderLabel : str ):
+    result = payment_return(request)
+    response = request.GET
+    content = {
+        'vnp_TransactionNo':response['vnp_TransactionNo']
+    }
+    if result:
+        cur_order = order.objects.get(orderLabel = orderLabel)
+        cur_order.token = content['vnp_TransactionNo']
+        cur_order.save()
+        print(cur_order)
+    print('ngu')
+
+
+@api.post("/payment/{amountAndOrderLabel}")
+def pay(request, amountAndOrderLabel: str):
+    try:
+        tmp = amountAndOrderLabel.split('_')
+        print(tmp)
+        order_id = datetime.now().strftime("%Y%m%d%H%M%S")
+        print(order_id)
+        order_type = "billpayment"
+        amount = int(tmp[0])
+        order_desc = "aloaloalaoal"
+        bank_code = ""
+        language = "vn"
+        form = PaymentForm({
+            'order_id': order_id,
+            'order_type': order_type,
+            'amount': amount,
+            'order_desc': order_desc,
+            'bank_code': bank_code,
+            'language': language
+        })
+
+        result = active_payment(request, form, tmp[1])
+        print(result)
+        if result:
+            return result
+    except Exception as e:
         return {"error": str(e)}
 
 urlpatterns = [
