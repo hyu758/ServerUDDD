@@ -238,8 +238,8 @@ def getPayment(request, orderLabel : str ):
         cur_order = order.objects.get(orderLabel = orderLabel)
         cur_order.token = content['vnp_TransactionNo']
         cur_order.save()
-        print(cur_order)
-    print('ngu')
+        return "Thanh toan thanh cong"
+    return "Thanh toan that bai"
 
 
 @api.post("/payment/{amountAndOrderLabel}")
