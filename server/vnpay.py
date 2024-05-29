@@ -54,7 +54,7 @@ def active_payment(request, form, course_id):
         vnp.requestData['vnp_IpAddr'] = ipaddr
         vnp.requestData['vnp_ReturnUrl'] = return_link
         vnpay_payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_HASH_SECRET_KEY)
-        return vnpay_payment_url
+        return {"paymentUrl" : vnpay_payment_url}
     else:
         return False
 
