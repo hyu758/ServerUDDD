@@ -200,6 +200,14 @@ def updateOrderByID(request, orderID, payload: updateOrderToken):
         return {"error": str(e)}
 
 
+@api.delete("/clearShoppingCartByEmail/{email}")
+def clear_shopping_cart(request, email: str):
+    try:
+        shopping_cart.objects.filter(email = email).delete()
+        return {"message": "All items in the shopping cart have been removed successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
