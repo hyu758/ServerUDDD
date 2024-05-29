@@ -208,6 +208,22 @@ def clear_shopping_cart(request, email: str):
     except Exception as e:
         return {"error": str(e)}
 
+
+class getOrderSchema(ModelSchema):
+    class Meta:
+        model = order
+        fields = '__all__'
+
+@api.get("/getOrderByEmail/{email}", response=list[getOrderSchema])
+def getOrderByEmail(request, email : str):
+    try:
+        orders = order.objects.filter(email = email)
+        print(orders)
+        return list(orders)
+    except Exception as e:
+        print("alo")
+        return {"error": str(e)}
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
