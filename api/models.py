@@ -21,8 +21,10 @@ class shopping_cart(models.Model):
     token = models.TextField(default="")
 
 class order(models.Model):
+    orderLabel = models.TextField(default="")
     email = models.EmailField()
     fullName = models.CharField(max_length=30, default="")
     address = models.TextField(default="")
     phoneNumber = models.CharField(max_length=20, default="")
+    totalAmount = models.BigIntegerField(default=0)
     token = models.TextField(default="")

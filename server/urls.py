@@ -164,16 +164,18 @@ def remove_product(request, product_id: int):
 class orderSchema(ModelSchema):
     class Meta:
         model = order
-        fields = ['email', 'fullName', 'address', 'phoneNumber', 'token']
+        fields = ['orderLabel','email', 'fullName', 'address', 'phoneNumber', 'totalAmount', 'token']
 
 @api.post("/insertOrder")
 def insertOrder(request, payload : orderSchema):
     try:
         new_order = order.objects.create(
+            orderLabel = payload.orderLabel,
             email = payload.email,
             fullName = payload.fullName,
             address = payload.address,
             phoneNumber = payload.phoneNumber,
+            totalAmount = payload.totalAmount,
             token = payload.token
         )
         new_order.save()
