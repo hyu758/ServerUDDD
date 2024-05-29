@@ -4,7 +4,7 @@ from django.urls import path, include
 from ninja import NinjaAPI, ModelSchema
 from api import views
 from api.models import *
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from datetime import datetime
 from .forms import *
@@ -238,8 +238,8 @@ def getPayment(request, orderLabel : str ):
         cur_order = order.objects.get(orderLabel = orderLabel)
         cur_order.token = content['vnp_TransactionNo']
         cur_order.save()
-        return "Thanh toan thanh cong"
-    return "Thanh toan that bai"
+        return HttpResponse("<h1>Thanh toán thành công. Vui lòng trở về app</h1>")
+    return HttpResponse("<h1>Thanh toán thất bại. Vui lòng trở về app</h1>")
 
 
 @api.post("/payment/{amountAndOrderLabel}")
