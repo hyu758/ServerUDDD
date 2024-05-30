@@ -271,6 +271,17 @@ def pay(request, amountAndOrderLabel: str):
     except Exception as e:
         return {"error": str(e)}
 
+
+@api.get("/getOrderByLabel/{orderLabel}", response=getOrderSchema)
+def getOrderByLabel(request, orderLabel : str):
+    try:
+        cur_order = order.objects.get(orderLabel=orderLabel)
+        return cur_order
+    except cur_order.DoesNotExist:
+        return {"error": "Order not found"}
+    except Exception as e:
+        return {"error": str(e)}
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
