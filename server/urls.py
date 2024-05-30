@@ -167,7 +167,7 @@ def remove_product(request, product_id: int):
 class orderSchema(ModelSchema):
     class Meta:
         model = order
-        fields = ['orderLabel','email', 'fullName', 'address', 'phoneNumber', 'totalAmount', 'token']
+        fields = ['orderLabel','email', 'fullName', 'address', 'phoneNumber', 'totalAmount', 'token', 'firstOrderImage']
 
 @api.post("/insertOrder")
 def insertOrder(request, payload : orderSchema):
@@ -179,7 +179,8 @@ def insertOrder(request, payload : orderSchema):
             address = payload.address,
             phoneNumber = payload.phoneNumber,
             totalAmount = payload.totalAmount,
-            token = payload.token
+            token = payload.token,
+            firstOrderImage = payload.firstOrderImage
         )
         new_order.save()
         return {"message": "Added to order successfully"}

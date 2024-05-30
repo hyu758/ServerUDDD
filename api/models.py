@@ -28,3 +28,4 @@ class order(models.Model):
     phoneNumber = models.CharField(max_length=20, default="")
     totalAmount = models.BigIntegerField(default=0)
     token = models.TextField(default="")
+    firstOrderImage = models.TextField(default="")
