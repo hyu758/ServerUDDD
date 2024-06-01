@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .rectangle {
+            border: 1px solid black;
+            height: 150px;
+            margin-bottom: 20px;
+        }
+        .large-rectangle {
+            height: 350px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container mt-4">
+        <h1 class = "mb-4">Trong tuần</h1>
+        <div class="row">
+            <div class="col-12">
+                <div class="rectangle large-rectangle">
+                    <canvas id="orderChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <h1 class = "mb-4">Toàn bộ</h1>
+        <div class="row">
+            <div class="col-4">
+                <div class="rectangle">
+                    <p>Số tài khoản khách hàng: </p>
+                    <p class = "fs-1">{{ total_accounts }} khách hàng</p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="rectangle">
+                    <p>Tổng doanh thu: </p>
+                    <p class = "fs-1">{{ total_revenue }} đ</p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="rectangle">
+                    <p class = "fs-6">Điều hướng</p>
+                    <p><a href="/admin/" target="_blank">Mở chi tiết</a></p>
+                    <p><a href="https://merchant.vnpay.vn/Users/Login.htm" target="_blank">Thống kê doanh thu VNPay</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden element to store order data -->
+    <small id="orderData" style="display:none;">{{ order_data|safe }}</small>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderData = JSON.parse(document.getElementById('orderData').innerText);
+            const labels = orderData.map(data => data.date);
+            const counts = orderData.map(data => data.count);
+
+            const ctx = document.getElementById('orderChart').getContext('2d');
+            const orderChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số hoá đơn',
+                        data: counts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Số hoá đơn trong tuần qua',
+                            font: {
+                                size: 20
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 10
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

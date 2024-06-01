@@ -18,7 +18,7 @@ class ProductSchema(ModelSchema):
         fields = '__all__'
 @api.get('/product', response=list[ProductSchema], by_alias=True)
 def get_products(request):
-    return products.objects.all()
+    return products.objects.filter(quantity__gt=0)
 
 class ProductCreateSchema(ModelSchema):
     class Meta:
@@ -207,7 +207,14 @@ def updateOrderByID(request, orderID, payload: updateOrderToken):
 @api.delete("/clearShoppingCartByEmail/{email}")
 def clear_shopping_cart(request, email: str):
     try:
-        shopping_cart.objects.filter(email = email).delete()
+        cart_items = shopping_cart.objects.filter(email=email)
+        # Trừ đi một lượng sản phẩm trong kho
+        for item in cart_items:
+            product = products.objects.get(id=item.productID)
+            if product.quantity > 0:
+                product.quantity -= 1
+                product.save()
+        cart_items.delete()
         return {"message": "All items in the shopping cart have been removed successfully"}
     except Exception as e:
         return {"error": str(e)}
@@ -239,6 +246,7 @@ def getPayment(request, orderLabel : str ):
         cur_order = order.objects.get(orderLabel = orderLabel)
         cur_order.token = content['vnp_TransactionNo']
         cur_order.save()
+        
         return HttpResponse("<h1>Thanh toán thành công. Vui lòng trở về app</h1>")
     return HttpResponse("<h1>Thanh toán thất bại. Vui lòng trở về app</h1>")
 
@@ -285,4 +293,6 @@ def getOrderByLabel(request, orderLabel : str):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
+    path('admins/', include('api.urls')),
+    
 ]
